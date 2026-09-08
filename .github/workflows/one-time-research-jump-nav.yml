@@ -1,0 +1,86 @@
+name: One-time research jump navigation
+
+on:
+  push:
+    paths:
+      - '.github/workflows/one-time-research-jump-nav.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add research jump navigation
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          p = Path('research.html')
+          s = p.read_text(encoding='utf-8')
+
+          # Remove any existing top research-section nav so this is idempotent.
+          s = re.sub(r'<ul class="year-nav research-section-nav">.*?</ul>', '', s, flags=re.S)
+
+          ids = {}
+          def section_repl(m):
+              attrs = m.group('attrs') or ''
+              title = m.group('title').strip()
+              low = title.lower()
+              section_id = None
+              if low == 'published articles':
+                  section_id = 'published-articles'
+              elif low == 'working papers':
+                  section_id = 'working-papers'
+              elif low.startswith('book chapters'):
+                  section_id = 'book-chapters-reviews'
+              elif low.startswith('unpublished'):
+                  section_id = 'unpublished-papers'
+              elif low == 'dissertation':
+                  section_id = 'dissertation'
+              if not section_id:
+                  return m.group(0)
+              ids[section_id] = title
+              attrs = re.sub(r'\s+id="[^"]*"', '', attrs)
+              return f'<section class="section" id="{section_id}"{attrs}><h2>{title}</h2>'
+
+          s = re.sub(r'<section class="section"(?P<attrs>[^>]*)><h2>(?P<title>[^<]+)</h2>', section_repl, s)
+
+          order = [
+              ('published-articles', 'Published articles'),
+              ('working-papers', 'Working papers'),
+              ('book-chapters-reviews', 'Book chapters & reviews'),
+              ('unpublished-papers', 'Unpublished papers'),
+              ('dissertation', 'Dissertation'),
+          ]
+          links = ''.join(f'<li><a href="#{sid}">{label}</a></li>' for sid, label in order if sid in ids)
+          nav = f'<ul class="year-nav research-section-nav">{links}</ul>'
+
+          s = re.sub(
+              r'(<section class="page-intro"><h1>Research</h1><p>.*?</p>)(</section>)',
+              lambda m: m.group(1) + nav + m.group(2),
+              s,
+              count=1,
+              flags=re.S,
+          )
+          p.write_text(s, encoding='utf-8')
+
+          css = Path('assets/styles.css')
+          c = css.read_text(encoding='utf-8')
+          if '.research-section-nav{' not in c:
+              c = c.replace(
+                  '.year-nav a{font-weight:600;font-size:.94rem}\n',
+                  '.year-nav a{font-weight:600;font-size:.94rem}\n.research-section-nav{margin-top:18px;gap:8px 22px}\n.research-section-nav a{font-size:1rem}\n'
+              )
+          css.write_text(c, encoding='utf-8')
+          PY
+      - name: Commit changes
+        run: |
+          git config user.name "SyedBasher"
+          git config user.email "124018240+SyedBasher@users.noreply.github.com"
+          git add research.html assets/styles.css
+          git commit -m "Add research section jump links"
+          git push
