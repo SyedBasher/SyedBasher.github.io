@@ -76,12 +76,13 @@ h3{font-size:1.08rem;line-height:1.45;margin-bottom:5px}
 .text-link{font-size:.98rem;font-weight:600}
 .year-nav{display:flex;flex-wrap:wrap;gap:7px 15px;margin:0;padding:0;list-style:none}
 .year-nav a{font-weight:600;font-size:.94rem}
-.year-block{padding:2px 0 12px}
+.year-block{padding:2px 0 0}
 .year-block>h2{font-size:1.42rem;margin:0 0 6px;color:var(--text)}
-.year-block+.year-block{margin-top:22px;padding-top:28px;border-top:2px solid var(--line)}
+.year-block+.year-block{margin-top:12px;padding-top:18px;border-top:2px solid var(--line)}
 .publication-list{list-style:none;margin:0;padding:0;max-width:900px}
 .publication-list li{padding:14px 0 16px;border-bottom:1.35px solid var(--line-light);font-size:1.01rem;line-height:1.6}
 .publication-list li:last-child{border-bottom:0}
+.year-block .publication-list li:last-child{padding-bottom:4px}
 .pub-title{font-size:1.08rem}
 .pub-details{color:var(--muted)}
 .pub-extra{display:none}
