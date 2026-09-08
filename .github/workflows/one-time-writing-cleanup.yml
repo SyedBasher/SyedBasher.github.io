@@ -1,67 +1,40 @@
-name: One-time writing cleanup
-
+name: One-time writing page cleanup
 on:
   push:
     paths:
-      - '.github/workflows/one-time-writing-cleanup.yml'
-
+      - .github/workflows/one-time-writing-cleanup.yml
 permissions:
   contents: write
-
 jobs:
   update:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Clean Writing page
+      - name: Update writing page
         run: |
           python - <<'PY'
           from pathlib import Path
           import re
-
-          p = Path('writing.html')
-          s = p.read_text(encoding='utf-8')
-
-          # Add a page-specific class for restrained spacing.
+          p = Path("writing.html")
+          s = p.read_text(encoding="utf-8")
           s = s.replace('<body><a class="skip-link"', '<body class="writing-page"><a class="skip-link"', 1)
-
-          # Replace the introduction with a shorter, more natural sentence.
-          s = re.sub(
-              r'<section class="page-intro"><h1>Writing</h1><p>.*?</p></section>',
-              '<section class="page-intro"><h1>Writing</h1><p>I write op-eds and newspaper articles on Bangladesh\'s economy, finance, development, data, energy, and public policy.</p></section>',
-              s, count=1, flags=re.S
-          )
-
-          # Remove the redundant "Public writing" heading; the year navigation is self-explanatory.
+          s = re.sub(r'<section class="page-intro"><h1>Writing</h1><p>.*?</p></section>', '<section class="page-intro"><h1>Writing</h1><p>I write op-eds and newspaper articles on Bangladesh’s economy, finance, development, data, energy, and public policy.</p></section>', s, count=1, flags=re.S)
           s = s.replace('<section class="section"><h2>Public writing</h2><ul class="year-nav">', '<section class="section"><ul class="year-nav writing-year-nav">', 1)
-
-          # Remove any archive-note section and standalone archive note paragraph.
-          s = re.sub(r'<section class="section"[^>]*>\s*<h2>Archive note</h2>.*?</section>', '', s, flags=re.S | re.I)
-          s = re.sub(r'<p class="note">[^<]*archive[^<]*</p>', '', s, flags=re.I)
-
-          # Remove inactive Gold River Analytics affiliation from structured data on this page.
+          s = re.sub(r'<section class="section"><h2>Archive note</h2>.*?</section>', '', s, flags=re.S|re.I)
+          s = s.replace(' · Gold River Analytics</div>', '</div>')
           s = re.sub(r',?"affiliation":\{"@type":"Organization","name":"Gold River Analytics"\}', '', s)
-
-          p.write_text(s, encoding='utf-8')
-
-          css = Path('assets/styles.css')
-          c = css.read_text(encoding='utf-8')
-          additions = '''
-/* Internal-page title scale and Writing-page spacing */
-.page-intro h1{font-size:2.8rem}
-.writing-page .page-intro{padding-bottom:24px}
-.writing-page .section{padding-top:28px}
-.writing-year-nav{margin:0 0 22px}
-@media(max-width:760px){.page-intro h1{font-size:2.35rem}.writing-page .page-intro{padding-bottom:20px}.writing-year-nav{margin-bottom:18px}}
-'''
-          if '/* Internal-page title scale and Writing-page spacing */' not in c:
-              c += '\n' + additions
-          css.write_text(c, encoding='utf-8')
+          p.write_text(s, encoding="utf-8")
+          css = Path("assets/styles.css")
+          c = css.read_text(encoding="utf-8")
+          marker = "/* Writing page refinement */"
+          if marker not in c:
+              c += "\n" + marker + "\n.page-intro h1{font-size:2.8rem}\n.writing-page .page-intro{padding-bottom:24px}\n.writing-page .section{padding-top:28px}\n.writing-year-nav{margin:0 0 22px}\n@media(max-width:760px){.page-intro h1{font-size:2.35rem}.writing-page .page-intro{padding-bottom:20px}.writing-year-nav{margin-bottom:18px}}\n"
+          css.write_text(c, encoding="utf-8")
           PY
-      - name: Commit changes
+      - name: Commit
         run: |
-          git config user.name "SyedBasher"
-          git config user.email "124018240+SyedBasher@users.noreply.github.com"
+          git config user.name SyedBasher
+          git config user.email 124018240+SyedBasher@users.noreply.github.com
           git add writing.html assets/styles.css
-          git commit -m "Simplify Writing page and improve spacing" || exit 0
+          git commit -m "Simplify Writing page and improve spacing"
           git push
