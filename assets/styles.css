@@ -84,7 +84,7 @@ h3{font-size:1.08rem;line-height:1.45;margin-bottom:5px}
 .publication-list li:last-child{border-bottom:0}
 .pub-title{font-size:1.08rem}
 .pub-details{color:var(--muted)}
-.pub-extra{white-space:nowrap;font-size:.87rem;font-weight:600;margin-left:7px}
+.pub-extra{display:none}
 .writing-grid{display:block;margin:0}
 .writing-grid article{padding:0 0 20px}
 .writing-grid h3{font-size:1.14rem;margin:2px 0}
