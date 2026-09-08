@@ -1,0 +1,108 @@
+name: One-time add Bangla writing
+
+on:
+  push:
+    paths:
+      - '.github/workflows/one-time-add-bangla-writing.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add verified Bangla writing
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          p = Path('writing.html')
+          s = p.read_text(encoding='utf-8')
+
+          s = s.replace(
+              "I write op-eds and newspaper articles on Bangladesh’s economy, finance, development, data, energy, and public policy.",
+              "I write columns and commentary in English and Bangla on Bangladesh’s economy, finance, development, data, energy, and public policy."
+          )
+          s = s.replace(
+              "Public writing and commentary by economist Syed Abul Basher.",
+              "Columns and commentary in English and Bangla by economist Syed Abul Basher."
+          )
+
+          def add_lang(title, outlet_text, url):
+              nonlocal_s = None
+              old = f'>{title}</a></h3><p>{outlet_text}</p>'
+              new = f'>{title}</a></h3><p>{outlet_text} · <a href="{url}" target="_blank" rel="noopener">বাংলা</a></p>'
+              return old, new
+
+          pairs = [
+              ("Bangladesh's trillion-dollar trilemma", "The Financial Express", "https://bonikbarta.com/editorial/Gdpzke2tFZUjUjrt"),
+              ("LDC graduation: The truth that is not spoken", "Prothom Alo", "https://www.prothomalo.com/opinion/column/b07vqachh0"),
+              ("Short-run vs long-run inflation", "The Financial Express", "https://bonikbarta.com/editorial/blPo9SfTt1o5q7r3"),
+              ("Is the time right to float the Taka?", "The Financial Express · with A.K. Enamul Haque", "https://bonikbarta.com/editorial/r4tazWKYmNmLEI77"),
+              ("Rethinking Bangladesh's economic growth", "The Daily Star · with Salim Rashid", "https://www.bonikbarta.com/editorial/LOaju91KAqRGaUnx"),
+              ("Lighting up tax revenue: the role of electricity bills", "The Financial Express", "https://www.bonikbarta.com/editorial/XjHiaB35X1y0sNef/"),
+              ("The real comparative advantage of Bangladesh", "The Daily Star · with Salim Rashid", "https://www.bonikbarta.com/editorial/JIRlqK9ecLyrBwsN"),
+              ("Making the Asian Monetary Fund a reality", "Project Syndicate · with M. Niaz Asadullah", "https://www.prothomalo.com/opinion/column/thj002pbgn"),
+          ]
+          for title, outlet, url in pairs:
+              old, new = add_lang(title, outlet, url)
+              if old in s and f'href="{url}"' not in s:
+                  s = s.replace(old, new, 1)
+
+          # Correct and link the Kalbela title.
+          old_k = '<article><time datetime="2023-07-23">23 July 2023</time><div><h3>শুল্কনীতি বাণিজ্যে সরকারের সুবিধা?</h3><p>কালবেলা</p></div></article>'
+          new_k = '<article><time datetime="2023-07-23">23 July 2023</time><div><h3><a href="https://www.kalbela.com/opinion/sub-editorial/9680" target="_blank" rel="noopener">মূল্যস্ফীতি বাড়লে সরকারের সুবিধা?</a></h3><p>কালবেলা</p></div></article>'
+          s = s.replace(old_k, new_k)
+
+          def insert_after(marker, html, unique_url):
+              nonlocal_s = None
+              return marker, html, unique_url
+
+          additions = [
+              (
+                  '<article><time datetime="2026-03-24">24 March 2026</time><div><h3><a href="https://thefinancialexpress.com.bd/views/bangladeshs-unfinished-financial-transition" target="_blank" rel="noopener">Bangladesh\'s unfinished financial transition</a></h3><p>The Financial Express</p></div></article>',
+                  '<article><time datetime="2026-03-04">4 March 2026</time><div><h3><a href="https://www.bonikbarta.com/editorial/EYl3VkmxlmnkN9Ev" target="_blank" rel="noopener">আমদানি পণ্যের দাম কি সত্যিই বাড়ছে</a></h3><p>বণিক বার্তা</p></div></article>',
+                  'https://www.bonikbarta.com/editorial/EYl3VkmxlmnkN9Ev'
+              ),
+              (
+                  '<article><time datetime="2026-02-10">10 February 2026</time><div><h3><a href="https://thefinancialexpress.com.bd/views/views/doctors-on-the-move" target="_blank" rel="noopener">Doctors on the move</a></h3><p>The Financial Express</p></div></article>',
+                  '<article><time datetime="2026-02-02">2 February 2026</time><div><h3><a href="https://bonikbarta.com/editorial/MWpPaRT5FDoVQWDX" target="_blank" rel="noopener">জ্বালানি আমদানিতে অতিনির্ভরতায় জাতীয় নিরাপত্তা ঝুঁকিতে বাংলাদেশ</a></h3><p>বণিক বার্তা</p></div></article>',
+                  'https://bonikbarta.com/editorial/MWpPaRT5FDoVQWDX'
+              ),
+              (
+                  '<article><time datetime="2026-01-31">31 January 2026</time><div><h3><a href="https://en.prothomalo.com/opinion/op-ed/rnfwcch42s" target="_blank" rel="noopener">LDC graduation: The truth that is not spoken</a></h3><p>Prothom Alo · <a href="https://www.prothomalo.com/opinion/column/b07vqachh0" target="_blank" rel="noopener">বাংলা</a></p></div></article>',
+                  '<article><time datetime="2026-01-30">30 January 2026</time><div><h3><a href="https://bonikbarta.com/editorial/UOuZokndFy7rBcVN" target="_blank" rel="noopener">দক্ষিণ এশিয়ায় সম্ভাবনাময় পথ দেখাতে পারে ইউরোপের এয়ারবাস মডেল</a></h3><p>বণিক বার্তা</p></div></article>',
+                  'https://bonikbarta.com/editorial/UOuZokndFy7rBcVN'
+              ),
+              (
+                  '<article><time datetime="2024-09-11">11 September 2024</time><div><h3><a href="https://www.thedailystar.net/opinion/views/news/rethinking-bangladeshs-economic-growth-3699361" target="_blank" rel="noopener">Rethinking Bangladesh\'s economic growth</a></h3><p>The Daily Star · with Salim Rashid · <a href="https://www.bonikbarta.com/editorial/LOaju91KAqRGaUnx" target="_blank" rel="noopener">বাংলা</a></p></div></article>',
+                  '<article><time datetime="2024-08-20">20 August 2024</time><div><h3><a href="https://bonikbarta.com/editorial/5aUcDBBg7yJIrc4t" target="_blank" rel="noopener">বাংলাদেশের শিক্ষা খাতের নানামুখী চ্যালেঞ্জ</a></h3><p>বণিক বার্তা</p></div></article>',
+                  'https://bonikbarta.com/editorial/5aUcDBBg7yJIrc4t'
+              ),
+              (
+                  '<article><time datetime="2023-06-12">12 June 2023</time><div><h3><a href="https://www.project-syndicate.org/commentary/asian-monetary-fund-may-finally-be-established-by-m-niaz-asadullah-and-syed-abul-basher-2023-06" target="_blank" rel="noopener">Making the Asian Monetary Fund a reality</a></h3><p>Project Syndicate · with M. Niaz Asadullah · <a href="https://www.prothomalo.com/opinion/column/thj002pbgn" target="_blank" rel="noopener">বাংলা</a></p></div></article>',
+                  '<article><time datetime="2023-01-12">12 January 2023</time><div><h3><a href="https://www.bonikbarta.com/home/news_description/326822/%E0%A6%87%E0%A6%89%E0%A6%B0%E0%A7%8B%E0%A6%AA%E0%A7%87%E0%A6%B0-%E0%A6%9C%E0%A7%8D%E0%A6%AC%E0%A6%BE%E0%A6%B2%E0%A6%BE%E0%A6%A8%E0%A6%BF-%E0%A6%B8%E0%A6%82%E0%A6%95%E0%A6%9F-%E0%A6%A5%E0%A7%87%E0%A6%95%E0%A7%87-%E0%A6%86%E0%A6%AE%E0%A6%B0%E0%A6%BE-%E0%A6%95%E0%A7%80-%E0%A6%B6%E0%A6%BF%E0%A6%96%E0%A6%B2%E0%A6%BE%E0%A6%AE?-=" target="_blank" rel="noopener">ইউরোপের জ্বালানি সংকট থেকে আমরা কী শিখলাম?</a></h3><p>বণিক বার্তা</p></div></article>',
+                  'https://www.bonikbarta.com/home/news_description/326822/'
+              ),
+              (
+                  '<div class="year-block" id="writing-2022"><h2>2022</h2><div class="writing-list">',
+                  '<article><time datetime="2022-11-28">28 November 2022</time><div><h3><a href="https://www.bonikbarta.com/editorial/tnrnYp8BPuq9XUyB" target="_blank" rel="noopener">ব্যাংকিংয়ে ‘নৈতিক বিপত্তি’র সমস্যা কাটিয়ে ওঠা কি অসম্ভব?</a></h3><p>বণিক বার্তা</p></div></article>',
+                  'https://www.bonikbarta.com/editorial/tnrnYp8BPuq9XUyB'
+              ),
+          ]
+
+          for marker, html, unique_url in additions:
+              if unique_url not in s and marker in s:
+                  s = s.replace(marker, marker + html, 1)
+
+          p.write_text(s, encoding='utf-8')
+          PY
+      - name: Commit changes
+        run: |
+          git config user.name "SyedBasher"
+          git config user.email "124018240+SyedBasher@users.noreply.github.com"
+          git add writing.html
+          git commit -m "Add verified Bangla writing and language links" || exit 0
+          git push
