@@ -76,6 +76,8 @@ h3{font-size:1.08rem;line-height:1.45;margin-bottom:5px}
 .text-link{font-size:.98rem;font-weight:600}
 .year-nav{display:flex;flex-wrap:wrap;gap:7px 15px;margin:0;padding:0;list-style:none}
 .year-nav a{font-weight:600;font-size:.94rem}
+.research-section-nav{margin-top:18px;gap:8px 22px}
+.research-section-nav a{font-size:1rem}
 .year-block{padding:2px 0 0}
 .year-block>h2{font-size:1.42rem;margin:0 0 6px;color:var(--text)}
 .year-block+.year-block{margin-top:12px;padding-top:18px;border-top:2px solid var(--line)}
