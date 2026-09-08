@@ -136,3 +136,9 @@ h3{font-size:1.08rem;line-height:1.45;margin-bottom:5px}
   .interest-list{columns:1}
   .writing-list article,.timeline>div{grid-template-columns:1fr;gap:5px}
 }
+/* Writing page refinement */
+.page-intro h1{font-size:2.8rem}
+.writing-page .page-intro{padding-bottom:24px}
+.writing-page .section{padding-top:28px}
+.writing-year-nav{margin:0 0 22px}
+@media(max-width:760px){.page-intro h1{font-size:2.35rem}.writing-page .page-intro{padding-bottom:20px}.writing-year-nav{margin-bottom:18px}}
