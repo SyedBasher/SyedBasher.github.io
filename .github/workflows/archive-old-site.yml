@@ -1,0 +1,29 @@
+name: Archive old site
+
+on:
+  push:
+    paths:
+      - '.github/workflows/archive-old-site.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Create archive
+        run: |
+          set -euo pipefail
+          git archive --format=zip --output='old files.zip' 002bc5206f777165c17f33333dc1bee6566cff42
+          rm -f .github/workflows/archive-old-site.yml
+      - name: Commit archive
+        run: |
+          git config user.name "SyedBasher"
+          git config user.email "124018240+SyedBasher@users.noreply.github.com"
+          git add -A
+          git commit -m "Archive previous website files" || exit 0
+          git push
