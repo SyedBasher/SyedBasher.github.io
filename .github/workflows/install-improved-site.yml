@@ -1,0 +1,44 @@
+name: Install improved site
+
+on:
+  push:
+    paths:
+      - '.github/workflows/install-improved-site.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Reconstruct and verify uploads
+        run: |
+          set -euo pipefail
+          cat .site-upload/site.part* | tr -d '[:space:]' | base64 -d > /tmp/site.zip
+          echo '78b93686fb72370073086208dde30522c1fbf27c293e6492a55a04aa054b7b68  /tmp/site.zip' | sha256sum -c -
+
+          cat .site-upload/cv.part* | tr -d '[:space:]' | base64 -d > /tmp/Syed_Basher_CV.pdf
+          echo '130a1c945be19ec03c7c2e9314aa44032b9e2db897522654a59ea87f3901de04  /tmp/Syed_Basher_CV.pdf' | sha256sum -c -
+
+      - name: Install improved site
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/site-unpack
+          mkdir -p /tmp/site-unpack
+          unzip -q /tmp/site.zip -d /tmp/site-unpack
+          cp -a /tmp/site-unpack/site/. .
+          cp /tmp/Syed_Basher_CV.pdf Syed_Basher_CV.pdf
+          rm -f assets/site.js
+          rm -rf .site-upload
+          rm -f .github/workflows/install-improved-site.yml
+
+      - name: Commit improved site
+        run: |
+          git config user.name "SyedBasher"
+          git config user.email "124018240+SyedBasher@users.noreply.github.com"
+          git add -A
+          git commit -m "Publish improved personal website" || exit 0
+          git push
