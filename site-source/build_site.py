@@ -159,7 +159,9 @@ EDU = [("2007", "Ph.D. in Economics",
        ("1999", "M.Sc. in Economics", "North South University, Dhaka"),
        ("1996", "B.B.A. in Finance", "North South University, Dhaka")]
 
-EXP = [("2025–present", "Independent Researcher", "Dhaka"),
+EXP = [("2026–present", "Founder",
+        '<a href="https://www.mangroveintel.com/" target="_blank" rel="noopener">Mangrove Intelligence</a>, Dhaka'),
+       ("2025–present", "Independent Researcher", "Dhaka"),
        ("2019–2025", "Professor of Economics", "East West University, Dhaka",
         "Acting Director, Center for Urban Studies and Sustainable Development, 2023–2025"),
        ("2015–2019", "Associate Professor of Economics", "East West University, Dhaka",
@@ -204,7 +206,10 @@ JSONLD = json.dumps({
     "@type": "Person",
     "name": "Syed Abul Basher",
     "url": SITE + "/",
-    "jobTitle": "Economist and Independent Researcher",
+    "jobTitle": ["Economist and Independent Researcher",
+                 "Founder, Mangrove Intelligence"],
+    "worksFor": {"@type": "Organization", "name": "Mangrove Intelligence",
+                 "url": "https://www.mangroveintel.com/"},
     "address": {"@type": "PostalAddress", "addressLocality": "Dhaka",
                 "addressCountry": "BD"},
     "email": "mailto:syed.basher@gmail.com",
@@ -266,8 +271,8 @@ def page(filename, title, description, body, active):
 <meta name="twitter:title" content="{E(title)}">
 <meta name="twitter:description" content="{E(description)}">
 
-<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#111823" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#fcfbf8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#15161a" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -302,7 +307,7 @@ HOME_BODY = f"""
     <div class="hero">
       <div>
         <h1>Syed Abul Basher</h1>
-        <p class="role">Economist and independent researcher</p>
+        <p class="role">Economist and independent researcher · Founder, Mangrove Intelligence</p>
         <p class="lede">Welcome to my website. I am an economist based in Dhaka, and this is where I
           keep my published work, the columns I write for the newspapers, and the commissioned
           projects I have worked on and am working on now.</p>
@@ -313,6 +318,10 @@ HOME_BODY = f"""
           administrative data a good deal, largely because the official numbers do not always reach
           far enough. I also take on commissioned work for research institutes, development banks and
           public bodies, usually where a model has to be built or a measurement problem sorted out.</p>
+        <p class="lede">Alongside this I founded <a href="https://www.mangroveintel.com/"
+          target="_blank" rel="noopener">Mangrove Intelligence</a>, through which I build data and
+          analytical products on the Bangladesh economy — the kind of work that has to be maintained
+          rather than delivered once and filed away.</p>
         <p class="idlinks">{PROFILE_LINKS}</p>
         <a class="cta" href="Syed_Basher_CV.pdf">Curriculum Vitae — PDF</a>
       </div>
@@ -466,6 +475,10 @@ ADVISORY_BODY = f"""
         <p class="lede">I am currently working with the Bangladesh Institute of Development Studies
           and the Microcredit Regulatory Authority. Earlier I worked with Bangladesh Bank, and on
           Asian Development Bank and World Bank–financed assignments.</p>
+        <p class="lede">Work that needs to be kept current rather than delivered once — databases,
+          indicators and recurring analysis — is built and maintained through
+          <a href="https://www.mangroveintel.com/" target="_blank" rel="noopener">Mangrove
+          Intelligence</a>, which I founded in 2026.</p>
       </div>
       <div class="hero-aside">
         <div class="contact-card flush">
@@ -506,6 +519,11 @@ ABOUT_BODY = f"""
             and commissioned advisory work for research institutes, development agencies and public
             bodies. I continue to supervise students and to write for the newspapers, in English and
             in Bangla.</p>
+          <p>In 2026 I founded <a href="https://www.mangroveintel.com/" target="_blank"
+            rel="noopener">Mangrove Intelligence</a>, which builds data and analytical products on
+            the Bangladesh economy. It grew out of the same frustration that runs through much of my
+            research: that the numbers a decision actually turns on are often not collected, or not
+            published in a form anyone can use.</p>
         </div>
         <p class="idlinks">{PROFILE_LINKS}</p>
         <a class="cta" href="Syed_Basher_CV.pdf">Curriculum Vitae — PDF</a>
@@ -554,16 +572,16 @@ PAGES = [
 # -------------------------------------------------------------------- css ---
 CSS = """/* syedbasher.github.io — generated by site-source/build_site.py */
 :root{
-  --paper:#ffffff; --band:#f2f4f6;
-  --ink:#14202e; --ink-soft:#4c5866; --ink-faint:#6b7580;
-  --rule:#d2d7dd; --rule-strong:#14202e;
+  --paper:#fcfbf8; --band:#f2efe8;
+  --ink:#1a2029; --ink-soft:#575d64; --ink-faint:#74787e;
+  --rule:#dcd6cb; --rule-strong:#1a2029;
   --accent:#8c1b2b; --link:#1c4c85;
 }
 @media (prefers-color-scheme: dark){
   :root{
-    --paper:#111823; --band:#18212e;
-    --ink:#e9edf2; --ink-soft:#aeb8c3; --ink-faint:#8b95a1;
-    --rule:#2a3542; --rule-strong:#8d99a6;
+    --paper:#15161a; --band:#1e2026;
+    --ink:#eceae6; --ink-soft:#b0aca6; --ink-faint:#8d8983;
+    --rule:#31333a; --rule-strong:#8f8b85;
     --accent:#dd8794; --link:#9dc0e8;
   }
 }
