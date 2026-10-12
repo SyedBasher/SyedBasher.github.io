@@ -44,6 +44,7 @@ img{max-width:100%;height:auto}
 .top{background:var(--bg);border-top:6px solid var(--bar);border-bottom:1px solid var(--rule);padding:14px 0}
 .top .wrap{display:flex;justify-content:space-between;align-items:baseline;
   flex-wrap:wrap;gap:8px 24px}
+.top nav{margin-left:auto}
 .name{font-size:1.25rem;font-weight:700;color:var(--green);text-decoration:none}
 nav a{margin-left:20px;font-size:1rem;color:var(--ink);text-decoration:none;
   padding-bottom:2px;border-bottom:2px solid transparent}

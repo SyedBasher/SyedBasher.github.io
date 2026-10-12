@@ -39,7 +39,7 @@ for s, y, t, d, u in pubs:
     by_sec[s].append((y, t, d, u))
 
 sec_counts = {s: len(v) for s, v in by_sec.items()}
-n_pub = sec_counts["Published articles"]
+n_pub = sum(1 for y, *_ in by_sec["Published articles"] if y != "Forthcoming")
 
 research_toc = ' &middot; '.join(
     f'<a href="#{slug(s)}">{E(s)}</a>' for s in ORDER if sec_counts[s])
@@ -194,11 +194,7 @@ NAV = [("index.html", "Home"), ("research.html", "Research"),
 PROFILE_LINKS = (
  '<a href="https://scholar.google.com/citations?user=aabMrnUAAAAJ" target="_blank" rel="noopener">Google&nbsp;Scholar</a>'
  '<a href="https://orcid.org/0000-0003-3918-8285" target="_blank" rel="noopener">ORCID</a>'
- '<a href="https://papers.ssrn.com/sol3/cf_dev/AbsByAuth.cfm?per_id=369204" target="_blank" rel="noopener">SSRN</a>'
- '<a href="https://mpra.ub.uni-muenchen.de/view/people/Basher%3D3ASyed_A%3D2E%3D3A%3D3A.html" target="_blank" rel="noopener">RePEc</a>'
- '<a href="https://www.sciencedirect.com/author/14048112000/syed-abul-basher" target="_blank" rel="noopener">Scopus</a>'
- '<a href="https://www.linkedin.com/in/syed-abul-basher-301b14432" target="_blank" rel="noopener">LinkedIn</a>'
- '<a href="https://github.com/SyedBasher" target="_blank" rel="noopener">GitHub</a>')
+ '<a href="https://papers.ssrn.com/sol3/cf_dev/AbsByAuth.cfm?per_id=369204" target="_blank" rel="noopener">SSRN</a>')
 
 JSONLD = json.dumps({
     "@context": "https://schema.org",
@@ -219,11 +215,7 @@ JSONLD = json.dumps({
                    "Household demand and welfare", "Bangladesh economy"],
     "sameAs": ["https://scholar.google.com/citations?user=aabMrnUAAAAJ",
                "https://orcid.org/0000-0003-3918-8285",
-               "https://papers.ssrn.com/sol3/cf_dev/AbsByAuth.cfm?per_id=369204",
-               "https://mpra.ub.uni-muenchen.de/view/people/Basher%3D3ASyed_A%3D2E%3D3A%3D3A.html",
-               "https://www.sciencedirect.com/author/14048112000/syed-abul-basher",
-               "https://www.linkedin.com/in/syed-abul-basher-301b14432",
-               "https://github.com/SyedBasher"],
+               "https://papers.ssrn.com/sol3/cf_dev/AbsByAuth.cfm?per_id=369204"],
 }, indent=2, ensure_ascii=False)
 
 FOOTER = """
@@ -237,6 +229,7 @@ FOOTER = """
 
 def page(filename, title, description, body, active):
     HERE_ATTR = ' class="here" aria-current="page"'
+    name_link = '' if filename == "index.html" else '<a class="name" href="index.html">Syed Abul Basher</a>'
     nav = ''.join(
         '<a href="%s"%s>%s</a>' % (h, HERE_ATTR if h == active else '', n)
         for h, n in NAV)
@@ -271,7 +264,7 @@ def page(filename, title, description, body, active):
 <a class="skip" href="#main">Skip to content</a>
 <header class="top">
   <div class="wrap">
-    <a class="name" href="index.html">Syed Abul Basher</a>
+    {name_link}
     <nav aria-label="Primary">{nav}</nav>
   </div>
 </header>
@@ -323,6 +316,9 @@ HOME_BODY = f"""
 
   <section>
     <h2>Recent papers</h2>
+    <p class="pub"><a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5284307"
+      target="_blank" rel="noopener">Panel econometric approaches to purchasing power parity: A
+      survey of methods and findings</a><br><em>Journal of Economic Surveys</em>, forthcoming.</p>
     <p class="pub"><a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=7422080"
       target="_blank" rel="noopener">Consumer demand systems and the welfare cost of price shocks in
       Bangladesh: Evidence from HIES 2022</a><br>with Salim Rashid. Working paper, 2026.</p>
@@ -346,7 +342,7 @@ RESEARCH_BODY = f"""
 WRITING_BODY = f"""
   <h1>Writing</h1>
   <p>From time to time, I write opinion columns for newspapers in Bangla and in English as a way of
-    putting my thinking in front of the general reader. {n_writing} pieces since 2007 are collected
+    putting my thinking in front of the general reader. {n_writing} pieces since 1999 are collected
     here.</p>
 {writing_body}"""
 
@@ -402,7 +398,7 @@ PAGES = [
   f"{n_pub} published articles plus working papers, book chapters, reviews and a dissertation, in "
   "applied economics, energy, macro-finance and the economy of Bangladesh.", RESEARCH_BODY),
  ("writing.html", "Writing — Syed Abul Basher",
-  f"{n_writing} newspaper columns and opinion pieces in Bangla and English since 2007, on inflation, "
+  f"{n_writing} newspaper columns and opinion pieces in Bangla and English since 1999, on inflation, "
   "the exchange rate, public debt, energy and economic measurement.", WRITING_BODY),
  ("advisory.html", "Advisory Work — Syed Abul Basher",
   "Commissioned economic analysis for research institutes, development agencies and public bodies, "
@@ -461,6 +457,7 @@ img{max-width:100%;height:auto}
 .top{background:var(--bg);border-top:6px solid var(--bar);border-bottom:1px solid var(--rule);padding:14px 0}
 .top .wrap{display:flex;justify-content:space-between;align-items:baseline;
   flex-wrap:wrap;gap:8px 24px}
+.top nav{margin-left:auto}
 .name{font-size:1.25rem;font-weight:700;color:var(--green);text-decoration:none}
 nav a{margin-left:20px;font-size:1rem;color:var(--ink);text-decoration:none;
   padding-bottom:2px;border-bottom:2px solid transparent}
