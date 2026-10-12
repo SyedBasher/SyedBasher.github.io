@@ -103,7 +103,7 @@ for yr, items in groups.items():
     rows = ''.join(
         '<p class="wr">'
         f'<time datetime="{E(iso_date(dt))}">{E(short_date(dt))}</time>'
-        f'<span>{link(t, u)}. <em>{E(outlet)}</em></span></p>'
+        f'<span>{link(t, u)}. <em>{E(re.sub(r" · with [^·]*", "", outlet))}</em></span></p>'
         for dt, t, outlet, u in items)
     writing_parts.append(f'<h3 class="year">{E(yr)}</h3>' + rows)
 writing_body = ''.join(writing_parts)
@@ -116,12 +116,12 @@ PROJECTS = [
   "Building a macroeconometric framework that brings together the main macroeconomic series and "
   "their estimated relationships, so that alternative developments and policy scenarios can be "
   "examined in one coherent setting rather than argued about in isolation."),
- ("2025–2026 · Economic Research Group",
+ ("2025–2026 · Economic Research Group and Microcredit Regulatory Authority",
   "Household indebtedness and financial vulnerability in the microfinance sector",
   "Branch and institution-level administrative records used to look at borrowing intensity, "
   "repayment stress and portfolio quality, and to work out where financial vulnerability is "
   "building up quietly enough to be missed."),
- ("2025 · Change Initiative",
+ ("2025 · Change Initiative and SOAS",
   "The political economy of debt in Sri Lanka and Bangladesh",
   "A comparative study of public debt and the institutions around it, asking how financing "
   "structures and political constraints shape both debt outcomes and the policy room a "
@@ -130,7 +130,7 @@ PROJECTS = [
   "Bangladesh flash floods 2022: post-disaster needs assessment",
   "Economic analysis contributed to the assessment that followed the 2022 flash floods, "
   "covering losses, recovery needs and the wider economic consequences."),
- ("2022 · KIVU International",
+ ("2022 · KIVU International and Policy Exchange Bangladesh",
   "New sectors in Bangladesh's export diversification",
   "An examination of where export growth might come from beyond the established sectors, using "
   "sector and product evidence to narrow a long list down to candidates worth studying properly."),
@@ -227,6 +227,18 @@ FOOTER = """
   </footer>"""
 
 
+def curly(h):
+    """Typographic apostrophes and single quotes in visible text only."""
+    out = []
+    for seg in re.split(r'(<script.*?</script>|<[^>]+>)', h, flags=re.S):
+        if not seg.startswith('<'):
+            seg = re.sub(r"(?<=\w)(?:&#x27;|')", '\u2019', seg)
+            seg = re.sub(r"(?:&#x27;|')(?=\w)", '\u2018', seg)
+            seg = re.sub(r"&#x27;|'", '\u2019', seg)
+        out.append(seg)
+    return ''.join(out)
+
+
 def page(filename, title, description, body, active):
     HERE_ATTR = ' class="here" aria-current="page"'
     name_link = '' if filename == "index.html" else '<a class="name" href="index.html">Syed Abul Basher</a>'
@@ -234,7 +246,7 @@ def page(filename, title, description, body, active):
         '<a href="%s"%s>%s</a>' % (h, HERE_ATTR if h == active else '', n)
         for h, n in NAV)
     canonical = SITE + "/" + ("" if filename == "index.html" else filename)
-    return f"""<!doctype html>
+    return curly(f"""<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -274,7 +286,7 @@ def page(filename, title, description, body, active):
 {FOOTER}
 </body>
 </html>
-"""
+""")
 
 
 # ------------------------------------------------------------------- pages ---
@@ -342,24 +354,19 @@ RESEARCH_BODY = f"""
 WRITING_BODY = f"""
   <h1>Writing</h1>
   <p>From time to time, I write opinion columns for newspapers in Bangla and in English as a way of
-    putting my thinking in front of the general reader. {n_writing} pieces since 1999 are collected
-    here.</p>
+    putting my thinking in front of the general reader.</p>
 {writing_body}"""
 
 ADVISORY_BODY = f"""
   <h1>Advisory work</h1>
-  <p>These are commissioned projects I have worked on for research institutes, development agencies
-    and public bodies, with a short note on what each one involved.</p>
-  <p>I am currently working with the Bangladesh Institute of Development Studies and the Microcredit
-    Regulatory Authority. Earlier I worked with Bangladesh Bank, and on Asian Development Bank and
+  <p>Commissioned projects for research institutes, development agencies and public bodies. I am
+    currently working with the Bangladesh Institute of Development Studies and the Microcredit
+    Regulatory Authority, and earlier worked with Bangladesh Bank and on Asian Development Bank and
     World Bank&ndash;financed assignments.</p>
-  <p>Work that needs to be kept current rather than delivered once &mdash; databases, indicators and
-    recurring analysis &mdash; is built and maintained through
-    <a href="https://www.mangroveintel.com/" target="_blank" rel="noopener">Mangrove Intelligence</a>,
-    which I founded in 2026.</p>
-  <p>If you have a project in mind, write to me at
-    <a href="mailto:syed.basher@gmail.com">syed.basher@gmail.com</a> and I will tell you whether I
-    can help.</p>
+  <p>Databases, indicators and other work that has to be kept current are built through
+    <a href="https://www.mangroveintel.com/" target="_blank" rel="noopener">Mangrove Intelligence</a>.
+    To discuss a project, write to
+    <a href="mailto:syed.basher@gmail.com">syed.basher@gmail.com</a>.</p>
   <h2>Selected projects</h2>
   {projects_body}"""
 
