@@ -138,6 +138,10 @@ PROJECTS = [
   "A hydro-economic model of the Jamuna River",
   "Joint work linking hydrological modelling to economic valuation along the Jamuna, in support "
   "of appraising river management options."),
+ ("2018–2019 · Bangladesh Bank, Sustainable Finance Department",
+  "Monetary and exchange rate research",
+  "A set of three research projects on the exchange rate, financed by the Sustainable Finance "
+  "Department of Bangladesh Bank."),
  ("2010–2012 · Qatar National Food Security Programme",
   "Economic consultant",
   "Analysis of food security and agricultural support in a small, import-dependent economy, "
