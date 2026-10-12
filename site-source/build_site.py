@@ -41,34 +41,31 @@ for s, y, t, d, u in pubs:
 sec_counts = {s: len(v) for s, v in by_sec.items()}
 n_pub = sec_counts["Published articles"]
 
-research_toc = ''.join(
-    f'<a href="#{slug(s)}">{E(s)} <em>{sec_counts[s]}</em></a>' for s in ORDER)
+research_toc = ' &middot; '.join(
+    f'<a href="#{slug(s)}">{E(s)}</a>' for s in ORDER if sec_counts[s])
 
 
 def pub_item(t, d, u):
-    det = f'<div class="cite">{E(d)}</div>' if d else ''
-    return f'<div class="pub"><div class="t">{link(t, u)}</div>{det}</div>'
+    det = f'<br>{E(d)}' if d else ''
+    return f'<p class="pub">{link(t, u)}{det}</p>'
 
 
 research_parts = []
 for sec, items in by_sec.items():
+    if not items:
+        continue
     inner = []
     if sec == "Published articles":
         cur = None
         for y, t, d, u in items:
             if y != cur:
                 cur = y
-                inner.append(f'<h2 class="yearhead">{E(y)}</h2>')
+                inner.append(f'<h3 class="year">{E(y)}</h3>')
             inner.append(pub_item(t, d, u))
     else:
         for y, t, d, u in items:
             inner.append(pub_item(t, d, u))
-    research_parts.append(f"""
-    <div class="divider-strong" id="{slug(sec)}"></div>
-    <div class="row">
-      <div class="rail"><div class="label">{E(sec)}</div></div>
-      <div class="body-col">{''.join(inner)}</div>
-    </div>""")
+    research_parts.append(f'<h2 id="{slug(sec)}">{E(sec)}</h2>' + ''.join(inner))
 research_body = ''.join(research_parts)
 
 
@@ -104,12 +101,11 @@ for dt, t, outlet, u in wr:
 writing_parts = []
 for yr, items in groups.items():
     rows = ''.join(
-        '<div class="wr">'
+        '<p class="wr">'
         f'<time datetime="{E(iso_date(dt))}">{E(short_date(dt))}</time>'
-        f'<div><div class="t">{link(t, u)}</div>'
-        f'<div class="outlet">{E(outlet)}</div></div></div>'
+        f'<span>{link(t, u)}. <em>{E(outlet)}</em></span></p>'
         for dt, t, outlet, u in items)
-    writing_parts.append(f'<h2 class="yearhead">{E(yr)}</h2>' + rows)
+    writing_parts.append(f'<h3 class="year">{E(yr)}</h3>' + rows)
 writing_body = ''.join(writing_parts)
 
 
@@ -148,8 +144,8 @@ PROJECTS = [
   "including work on subsidy design and household food expenditure."),
 ]
 projects_body = ''.join(
-    f'<div class="entry"><div class="meta">{E(m)}</div><h3>{E(t)}</h3>'
-    f'<p class="desc">{E(d)}</p></div>' for m, t, d in PROJECTS)
+    f'<div class="entry"><p class="meta">{E(m)}</p><p class="etitle">{E(t)}</p>'
+    f'<p>{E(d)}</p></div>' for m, t, d in PROJECTS)
 
 
 # ------------------------------------------------------------------ about ---
@@ -180,14 +176,17 @@ def timeline(rows):
     for row in rows:
         a, b, c = row[0], row[1], row[2]
         sub = row[3] if len(row) > 3 else ''
-        sub_html = f'<div class="tlsub">{E(sub)}</div>' if sub else ''
-        out.append(f'<div class="tlrow"><time>{E(a)}</time><div>'
-                   f'<div class="tlt">{E(b)}</div><div class="tls">{c}</div>'
-                   f'{sub_html}</div></div>')
+        sub_html = f'<br><span class="soft">{E(sub)}</span>' if sub else ''
+        out.append(f'<div class="tl"><time>{E(a)}</time>'
+                   f'<span><strong>{E(b)}</strong>, {c}{sub_html}</span></div>')
     return ''.join(out)
 
 
 # ------------------------------------------------------------------- chrome --
+# The portrait committed to the repository is a grey placeholder. Set this to
+# True once assets/portrait.jpg is a real photograph (4:5, about 800x1000 px).
+SHOW_PORTRAIT = False
+
 NAV = [("index.html", "Home"), ("research.html", "Research"),
        ("writing.html", "Writing"), ("advisory.html", "Advisory"),
        ("about.html", "About")]
@@ -228,21 +227,12 @@ JSONLD = json.dumps({
 }, indent=2, ensure_ascii=False)
 
 FOOTER = """
-  <div class="shell">
-    <div class="divider-strong"></div>
-    <footer class="site-foot">
-      <strong>Syed Abul Basher</strong>
-      <div>Economist and independent researcher · Dhaka</div>
-      <div class="foot-links">
-        <a href="mailto:syed.basher@gmail.com">Email</a>
-        <a href="research.html">Research</a>
-        <a href="writing.html">Writing</a>
-        <a href="advisory.html">Advisory</a>
-        <a href="about.html">About</a>
-        <a href="Syed_Basher_CV.pdf">CV</a>
-      </div>
-    </footer>
-  </div>"""
+  <footer class="site-foot">
+    <div class="wrap">
+      Syed Abul Basher &middot; Dhaka, Bangladesh &middot;
+      <a href="mailto:syed.basher@gmail.com">syed.basher@gmail.com</a>
+    </div>
+  </footer>"""
 
 
 def page(filename, title, description, body, active):
@@ -271,13 +261,7 @@ def page(filename, title, description, body, active):
 <meta name="twitter:title" content="{E(title)}">
 <meta name="twitter:description" content="{E(description)}">
 
-<meta name="theme-color" content="#fcfbf8" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#15161a" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="assets/styles.css">
 <script type="application/ld+json">
 {JSONLD}
@@ -285,14 +269,13 @@ def page(filename, title, description, body, active):
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
-<div class="topmark"></div>
-<div class="shell">
-  <header class="masthead">
-    <a class="wordmark" href="index.html">Syed Abul Basher<small>Economist · Dhaka</small></a>
-    <nav class="mastnav" aria-label="Primary">{nav}</nav>
-  </header>
-</div>
-<main id="main">
+<header class="top">
+  <div class="wrap">
+    <a class="name" href="index.html">Syed Abul Basher</a>
+    <nav aria-label="Primary">{nav}</nav>
+  </div>
+</header>
+<main id="main" class="wrap">
 {body}
 </main>
 {FOOTER}
@@ -302,251 +285,103 @@ def page(filename, title, description, body, active):
 
 
 # ------------------------------------------------------------------- pages ---
+PORTRAIT = ('<img class="portrait" src="assets/portrait.jpg" alt="Syed Abul Basher" '
+            'width="480" height="600">') if SHOW_PORTRAIT else ''
+
 HOME_BODY = f"""
-  <div class="shell">
-    <div class="hero">
-      <div>
-        <h1>Syed Abul Basher</h1>
-        <p class="role">Economist and independent researcher · Founder, Mangrove Intelligence</p>
-        <p class="lede">Welcome to my website. I am an economist based in Dhaka, and this is where I
-          keep my published work, the columns I write for the newspapers, and the commissioned
-          projects I have worked on and am working on now.</p>
-        <p class="lede">Most of my current research is about Bangladesh: questions of regional
-          disparity, development questions approached through large micro datasets such as the HIES
-          and the Labour Force Survey, the building of large macroeconometric and computable general
-          equilibrium models, and the country's persistent energy crisis. I use satellite and
-          administrative data a good deal, largely because the official numbers do not always reach
-          far enough. I also take on commissioned work for research institutes, development banks and
-          public bodies, usually where a model has to be built or a measurement problem sorted out.</p>
-        <p class="lede">Alongside this I founded <a href="https://www.mangroveintel.com/"
-          target="_blank" rel="noopener">Mangrove Intelligence</a>, through which I build data and
-          analytical products on the Bangladesh economy — the kind of work that has to be maintained
-          rather than delivered once and filed away.</p>
-        <p class="idlinks">{PROFILE_LINKS}</p>
-        <a class="cta" href="Syed_Basher_CV.pdf">Curriculum Vitae — PDF</a>
-      </div>
-      <div class="hero-aside">
-        <img class="portrait" src="assets/portrait.jpg" alt="Syed Abul Basher" width="480" height="600">
-        <div class="contact-card">
-          <div class="label">Write to me</div>
-          <a href="mailto:syed.basher@gmail.com">syed.basher@gmail.com</a>
-        </div>
-      </div>
+  <section class="intro{' with-photo' if SHOW_PORTRAIT else ''}">
+    {PORTRAIT}
+    <div>
+      <h1>Syed Abul Basher</h1>
+      <p class="role">Economist and independent researcher</p>
+      <p>Founder, <a href="https://www.mangroveintel.com/" target="_blank"
+        rel="noopener">Mangrove Intelligence</a></p>
+      <p class="contact"><strong>Email</strong><br>
+        <a href="mailto:syed.basher@gmail.com">syed.basher@gmail.com</a></p>
+      <p class="contact"><strong>Links</strong><br>{PROFILE_LINKS}<a href="Syed_Basher_CV.pdf">CV</a></p>
     </div>
-  </div>
+  </section>
 
-  <div class="band">
-    <div class="shell">
-      <div class="row">
-        <div class="rail"><div class="label">Record</div></div>
-        <div class="body-col">
-          <div class="record">
-            <div><div class="label">Published articles</div><div class="fig">{n_pub}</div>
-              <div class="sub">plus working papers, chapters and reviews</div></div>
-            <div><div class="label">Journals include</div><div class="fig long">Journal of Population Economics</div>
-              <div class="sub">Energy Economics · Journal of Banking &amp; Finance · Empirical Economics</div></div>
-            <div><div class="label">Central banking</div><div class="fig">2007–2013</div>
-              <div class="sub">Research &amp; Monetary Policy, Qatar Central Bank</div></div>
-            <div><div class="label">Advisory</div><div class="fig">BIDS · MRA</div>
-              <div class="sub">Current work; earlier Bangladesh Bank and the ADB</div></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <section>
+    <p>My current research focuses mainly on economic questions related to Bangladesh: regional
+      disparity, household welfare and prices, the energy sector, and the building of economy-wide
+      models, both computable general equilibrium and macroeconometric. The empirical work draws on
+      official statistics as well as household surveys, administrative records and satellite
+      images. For many years I have also worked on oil prices, exchange rates, food security and
+      the economies of the Gulf.</p>
+  </section>
 
-  <div class="shell">
-    <div class="row">
-      <div class="rail"><div class="label">Work</div></div>
-      <div class="body-col">
-        <div class="split">
-          <div>
-            <div class="track-kicker">Research</div>
-            <h2>Selected recent papers</h2>
-            <div class="entries">
-              <div class="entry"><div class="meta">2026 · Working paper</div>
-                <h3><a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=7422080" target="_blank" rel="noopener">Consumer demand systems and the welfare cost of price shocks in Bangladesh</a></h3>
-                <div class="by">with Salim Rashid · Evidence from HIES 2022</div></div>
-              <div class="entry"><div class="meta">2026 · Kyklos</div>
-                <h3><a href="https://onlinelibrary.wiley.com/doi/10.1111/kykl.70020" target="_blank" rel="noopener">Regulatory burdens, corruption, and informal competition</a></h3>
-                <div class="by">with Asaf Ibne Salim and Muhammad Nazmul Khan</div></div>
-              <div class="entry"><div class="meta">2024 · Journal of Population Economics</div>
-                <h3><a href="https://link.springer.com/article/10.1007/s00148-024-01043-6" target="_blank" rel="noopener">Improved estimates of child undernutrition trends using remote-sensed data</a></h3>
-                <div class="by">with S. Das, B. Baffour, P. Godwin, A. Richardson and S. Rashid</div></div>
-            </div>
-            <a class="more" href="research.html">All research and publications</a>
-          </div>
-          <div>
-            <div class="track-kicker">Advisory</div>
-            <h2>Selected engagements</h2>
-            <div class="entries">
-              <div class="entry"><div class="meta">2026 · BIDS</div>
-                <h3>A macroeconometric model of Bangladesh</h3>
-                <p class="desc">A framework linking the main macroeconomic series and their estimated relationships, so policy scenarios can be examined coherently.</p></div>
-              <div class="entry"><div class="meta">2025–26 · Economic Research Group</div>
-                <h3>Household indebtedness in the microfinance sector</h3>
-                <p class="desc">Borrowing intensity, repayment stress and portfolio quality, read off branch-level administrative records.</p></div>
-              <div class="entry"><div class="meta">2022 · Asian Development Bank</div>
-                <h3>Flash floods post-disaster needs assessment</h3>
-                <p class="desc">Economic analysis of losses and recovery needs following the 2022 flash floods.</p></div>
-            </div>
-            <a class="more" href="advisory.html">All advisory work</a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="shell">
-    <div class="divider-strong"></div>
-    <div class="row">
-      <div class="rail"><div class="label">Public writing</div>
-        <div class="note">The Financial Express<br>The Daily Star<br>বণিক বার্তা<br>Project Syndicate · VoxEU</div></div>
-      <div class="body-col">
-        <h2>Commentary</h2>
-        <p class="sec-note">From time to time, I write opinion columns for newspapers in Bangla and in
-          English as a way of putting my thinking in front of the general reader.</p>
-        <div class="currently">
-          <div class="cur"><time datetime="2026-04-18">18 Apr 2026</time><p><a href="https://thefinancialexpress.com.bd/columns/bangladeshs-trillion-dollar-trilemma" target="_blank" rel="noopener">Bangladesh's trillion-dollar trilemma</a> · The Financial Express</p></div>
-          <div class="cur"><time datetime="2026-03-24">24 Mar 2026</time><p><a href="https://thefinancialexpress.com.bd/views/bangladeshs-unfinished-financial-transition" target="_blank" rel="noopener">Bangladesh's unfinished financial transition</a> · The Financial Express</p></div>
-          <div class="cur"><time datetime="2026-03-04">04 Mar 2026</time><p><a href="https://www.bonikbarta.com/editorial/EYl3VkmxlmnkN9Ev" target="_blank" rel="noopener">আমদানি পণ্যের দাম কি সত্যিই বাড়ছে</a> · বণিক বার্তা</p></div>
-        </div>
-        <a class="more" href="writing.html">All {n_writing} pieces, 2007 to date</a>
-      </div>
-    </div>
-  </div>
-
-  <div class="band">
-    <div class="shell">
-      <div class="row">
-        <div class="rail"><div class="label">Enquiries</div></div>
-        <div class="body-col engage">
-          <h2>Advisory and commissioned work</h2>
-          <p>Alongside my research I do advisory and commissioned work on a regular basis, mainly for
-            research institutes, development agencies and public bodies. It usually involves building
-            or estimating a model, working with survey and administrative records, or measuring
-            something the official statistics do not cover well.</p>
-          <p>If you have a project in mind, write to me and I will tell you whether I can help.</p>
-          <p class="mail"><a href="mailto:syed.basher@gmail.com">syed.basher@gmail.com</a></p>
-        </div>
-      </div>
-    </div>
-  </div>"""
+  <section>
+    <h2>Recent papers</h2>
+    <p class="pub"><a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=7422080"
+      target="_blank" rel="noopener">Consumer demand systems and the welfare cost of price shocks in
+      Bangladesh: Evidence from HIES 2022</a><br>with Salim Rashid. Working paper, 2026.</p>
+    <p class="pub"><a href="https://onlinelibrary.wiley.com/doi/10.1111/kykl.70020"
+      target="_blank" rel="noopener">Regulatory burdens, corruption, and informal competition:
+      Determinants of incorporation in Bangladesh</a><br>with Asaf Ibne Salim and Muhammad Nazmul
+      Khan. <em>Kyklos</em>, 2026.</p>
+    <p class="pub"><a href="https://link.springer.com/article/10.1007/s00148-024-01043-6"
+      target="_blank" rel="noopener">Improved estimates of child undernutrition trends in
+      micro-level administrative units in Bangladesh using remote-sensed data</a><br>with S. Das,
+      B. Baffour, P. Godwin, A. Richardson and S. Rashid. <em>Journal of Population Economics</em>,
+      2024.</p>
+    <p><a href="research.html">All research and publications</a></p>
+  </section>"""
 
 RESEARCH_BODY = f"""
-  <div class="shell">
-    <div class="hero single">
-      <div>
-        <h1>Research</h1>
-        <p class="lede">Here is a list of my published articles, working papers, book chapters and
-          reviews, unpublished papers, and my dissertation. Each entry links to the published version
-          where one exists.</p>
-        <nav class="toc" aria-label="Sections">{research_toc}</nav>
-      </div>
-    </div>
-{research_body}
-  </div>"""
+  <h1>Research</h1>
+  <p class="toc">{research_toc}</p>
+{research_body}"""
 
 WRITING_BODY = f"""
-  <div class="shell">
-    <div class="hero single">
-      <div>
-        <h1>Writing</h1>
-        <p class="lede">From time to time, I write opinion columns for newspapers in Bangla and in
-          English as a way of putting my thinking in front of the general reader. {n_writing} pieces
-          since 2007 are collected here.</p>
-      </div>
-    </div>
-    <div class="divider-strong"></div>
-    <div class="row">
-      <div class="rail"><div class="label">Archive</div>
-        <div class="note">The Financial Express<br>The Daily Star<br>বণিক বার্তা<br>Prothom Alo · কালবেলা<br>Project Syndicate<br>VoxEU · Gulf News</div></div>
-      <div class="body-col">{writing_body}</div>
-    </div>
-  </div>"""
+  <h1>Writing</h1>
+  <p>From time to time, I write opinion columns for newspapers in Bangla and in English as a way of
+    putting my thinking in front of the general reader. {n_writing} pieces since 2007 are collected
+    here.</p>
+{writing_body}"""
 
 ADVISORY_BODY = f"""
-  <div class="shell">
-    <div class="hero">
-      <div>
-        <h1>Advisory work</h1>
-        <p class="lede">These are commissioned projects I have worked on for research institutes,
-          development agencies and public bodies, with a short note on what each one involved.</p>
-        <p class="lede">I am currently working with the Bangladesh Institute of Development Studies
-          and the Microcredit Regulatory Authority. Earlier I worked with Bangladesh Bank, and on
-          Asian Development Bank and World Bank–financed assignments.</p>
-        <p class="lede">Work that needs to be kept current rather than delivered once — databases,
-          indicators and recurring analysis — is built and maintained through
-          <a href="https://www.mangroveintel.com/" target="_blank" rel="noopener">Mangrove
-          Intelligence</a>, which I founded in 2026.</p>
-      </div>
-      <div class="hero-aside">
-        <div class="contact-card flush">
-          <div class="label">What I am asked for</div>
-          <div class="asked">
-            Macro-financial diagnostics<br>Econometric modelling<br>Forecasting and scenarios<br>
-            Survey and administrative microdata<br>Geospatial measurement<br>Expert and valuation analysis
-          </div>
-          <a class="cta" href="mailto:syed.basher@gmail.com">Write to me</a>
-        </div>
-      </div>
-    </div>
-    <div class="divider-strong"></div>
-    <div class="row">
-      <div class="rail"><div class="label">Selected projects</div><div class="note">2010 – 2026</div></div>
-      <div class="body-col"><div class="entries">{projects_body}</div></div>
-    </div>
-  </div>"""
+  <h1>Advisory work</h1>
+  <p>These are commissioned projects I have worked on for research institutes, development agencies
+    and public bodies, with a short note on what each one involved.</p>
+  <p>I am currently working with the Bangladesh Institute of Development Studies and the Microcredit
+    Regulatory Authority. Earlier I worked with Bangladesh Bank, and on Asian Development Bank and
+    World Bank&ndash;financed assignments.</p>
+  <p>Work that needs to be kept current rather than delivered once &mdash; databases, indicators and
+    recurring analysis &mdash; is built and maintained through
+    <a href="https://www.mangroveintel.com/" target="_blank" rel="noopener">Mangrove Intelligence</a>,
+    which I founded in 2026.</p>
+  <p>If you have a project in mind, write to me at
+    <a href="mailto:syed.basher@gmail.com">syed.basher@gmail.com</a> and I will tell you whether I
+    can help.</p>
+  <h2>Selected projects</h2>
+  {projects_body}"""
 
 ABOUT_BODY = f"""
-  <div class="shell">
-    <div class="hero">
-      <div>
-        <h1>About</h1>
-        <div class="prose">
-          <p>I am an independent research economist based in Dhaka, with about twenty-five years of
-            research experience in energy economics, monetary policy and applied macroeconomics. After
-            completing my PhD in Economics at York University in Toronto, I worked from 2007 to 2013
-            as a Research Economist in the Department of Research and Monetary Policy at Qatar Central
-            Bank, and during that period I also held the position of Economic Consultant to the Qatar
-            National Food Security Programme from 2010 to 2012. Both roles involved producing academic
-            and policy research for a central bank and a government programme.</p>
-          <p>I subsequently served as Senior Research Fellow at Fikra Research &amp; Policy in Doha
-            from 2014 to 2016, and at East West University in Dhaka from 2015 to 2025, most recently
-            as Professor of Economics and as Acting Director of its Center for Urban Studies and
-            Sustainable Development.</p>
-          <p>Since 2025 I have been working independently, my time divided between academic research
-            and commissioned advisory work for research institutes, development agencies and public
-            bodies. I continue to supervise students and to write for the newspapers, in English and
-            in Bangla.</p>
-          <p>In 2026 I founded <a href="https://www.mangroveintel.com/" target="_blank"
-            rel="noopener">Mangrove Intelligence</a>, which builds data and analytical products on
-            the Bangladesh economy. It grew out of the same frustration that runs through much of my
-            research: that the numbers a decision actually turns on are often not collected, or not
-            published in a form anyone can use.</p>
-        </div>
-        <p class="idlinks">{PROFILE_LINKS}</p>
-        <a class="cta" href="Syed_Basher_CV.pdf">Curriculum Vitae — PDF</a>
-      </div>
-      <div class="hero-aside">
-        <img class="portrait" src="assets/portrait.jpg" alt="Syed Abul Basher" width="480" height="600">
-        <div class="contact-card">
-          <div class="label">Write to me</div>
-          <a href="mailto:syed.basher@gmail.com">syed.basher@gmail.com</a>
-        </div>
-      </div>
-    </div>
-    <div class="divider-strong"></div>
-    <div class="row">
-      <div class="rail"><div class="label">Education</div></div>
-      <div class="body-col">{timeline(EDU)}</div>
-    </div>
-    <div class="divider-strong"></div>
-    <div class="row">
-      <div class="rail"><div class="label">Positions</div></div>
-      <div class="body-col">{timeline(EXP)}</div>
-    </div>
-  </div>"""
+  <h1>About</h1>
+  <p>I am an independent research economist based in Dhaka, with about twenty-five years of
+    research experience in energy economics, monetary policy and applied macroeconomics. After
+    completing my PhD in Economics at York University in Toronto, I worked from 2007 to 2013 as a
+    Research Economist in the Department of Research and Monetary Policy at Qatar Central Bank, and
+    during that period I also held the position of Economic Consultant to the Qatar National Food
+    Security Programme from 2010 to 2012. Both roles involved producing academic and policy research
+    for a central bank and a government programme.</p>
+  <p>I subsequently served as Senior Research Fellow at Fikra Research &amp; Policy in Doha from 2014
+    to 2016, and at East West University in Dhaka from 2015 to 2025, most recently as Professor of
+    Economics and as Acting Director of its Center for Urban Studies and Sustainable Development.</p>
+  <p>Since 2025 I have been working independently, my time divided between academic research and
+    commissioned advisory work for research institutes, development agencies and public bodies. I
+    continue to supervise students and to write for the newspapers, in English and in Bangla.</p>
+  <p>In 2026 I founded <a href="https://www.mangroveintel.com/" target="_blank"
+    rel="noopener">Mangrove Intelligence</a>, which builds data and analytical products on the
+    Bangladesh economy. It grew out of the same frustration that runs through much of my research:
+    that the numbers a decision actually turns on are often not collected, or not published in a form
+    anyone can use.</p>
+  <p><a href="Syed_Basher_CV.pdf">Curriculum Vitae (PDF)</a></p>
+  <h2>Education</h2>
+  {timeline(EDU)}
+  <h2>Positions</h2>
+  {timeline(EXP)}"""
 
 PAGES = [
  ("index.html", "Syed Abul Basher | Economist and Independent Researcher",
@@ -570,192 +405,71 @@ PAGES = [
 
 
 # -------------------------------------------------------------------- css ---
-CSS = """/* syedbasher.github.io — generated by site-source/build_site.py */
-:root{
-  --paper:#fcfbf8; --band:#f2efe8;
-  --ink:#1a2029; --ink-soft:#575d64; --ink-faint:#74787e;
-  --rule:#dcd6cb; --rule-strong:#1a2029;
-  --accent:#8c1b2b; --link:#1c4c85;
-}
+CSS = """/* syedbasher.github.io - generated by site-source/build_site.py */
+:root{--bg:#fff;--ink:#111;--soft:#555;--rule:#cfcfcf;--link:#1a4f8b}
 @media (prefers-color-scheme: dark){
-  :root{
-    --paper:#15161a; --band:#1e2026;
-    --ink:#eceae6; --ink-soft:#b0aca6; --ink-faint:#8d8983;
-    --rule:#31333a; --rule-strong:#8f8b85;
-    --accent:#dd8794; --link:#9dc0e8;
-  }
+  :root{--bg:#141414;--ink:#e8e8e8;--soft:#a9a9a9;--rule:#3a3a3a;--link:#8fb4e3}
 }
 *{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{margin:0;background:var(--paper);color:var(--ink);
-  font-family:"IBM Plex Sans","Helvetica Neue",Arial,sans-serif;
-  font-size:16.5px;line-height:1.66;-webkit-font-smoothing:antialiased}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Times New Roman",Times,"Liberation Serif",Georgia,serif;
+  font-size:18px;line-height:1.55}
 a{color:var(--link);text-decoration:none}
-a:hover{text-decoration:underline;text-decoration-color:var(--accent);
-  text-decoration-thickness:1.5px;text-underline-offset:3px}
-a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
-h1,h2,h3{font-family:"Source Serif 4",Georgia,"Times New Roman",serif;color:var(--ink);
-  margin:0;text-wrap:balance}
-p{margin:0}
+a:hover{text-decoration:underline}
+a:focus-visible{outline:2px solid var(--link);outline-offset:2px}
+h1,h2,h3{margin:0;font-weight:700;line-height:1.25;color:var(--ink)}
+h1{font-size:1.9rem;margin-bottom:12px}
+h2{font-size:1.3rem;margin:34px 0 10px;padding-bottom:4px;border-bottom:1px solid var(--rule)}
+h3.year{font-size:1rem;margin:22px 0 6px}
+p{margin:0 0 12px}
 img{max-width:100%;height:auto}
-.skip{position:absolute;left:-9999px;top:0;background:var(--ink);color:var(--paper);
-  padding:10px 16px;z-index:100}
-.skip:focus{left:12px;top:12px}
-[id]{scroll-margin-top:24px}
+em{font-style:italic}
+.wrap{max-width:760px;margin:0 auto;padding:0 24px}
+.skip{position:absolute;left:-9999px;top:0;background:var(--ink);color:var(--bg);padding:8px 14px}
+.skip:focus{left:10px;top:10px}
 
-.topmark{height:3px;background:var(--accent)}
-.shell{max-width:1120px;margin:0 auto;padding:0 32px}
-.masthead{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;
-  flex-wrap:wrap;padding:20px 0 14px;border-bottom:2px solid var(--rule-strong)}
-.wordmark{font-family:"Source Serif 4",Georgia,serif;font-size:1.36rem;font-weight:700;
-  letter-spacing:-.008em;color:var(--ink);line-height:1.2}
-.wordmark:hover{text-decoration:none}
-.wordmark small{display:block;font-family:"IBM Plex Mono",monospace;font-size:11px;
-  font-weight:500;letter-spacing:.13em;text-transform:uppercase;color:var(--accent);margin-top:5px}
-.mastnav{display:flex;gap:21px;flex-wrap:wrap;font-size:.92rem;font-weight:500}
-.mastnav a{color:var(--ink-soft);padding-bottom:2px}
-.mastnav a.here{color:var(--ink);font-weight:600;box-shadow:inset 0 -2px 0 var(--accent)}
+.top{border-bottom:1px solid var(--rule);padding:16px 0}
+.top .wrap{display:flex;justify-content:space-between;align-items:baseline;
+  flex-wrap:wrap;gap:8px 24px}
+.name{font-size:1.15rem;font-weight:700;color:var(--ink)}
+.name:hover{text-decoration:none}
+nav a{margin-left:20px;font-size:1rem;color:var(--link)}
+nav a.here{color:var(--ink);font-weight:700}
 
-.row{display:grid;grid-template-columns:160px minmax(0,1fr);gap:0 38px}
-.rail{border-right:1px solid var(--rule);padding:30px 22px 30px 0}
-.body-col{padding:30px 0}
-.label{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.15em;
-  text-transform:uppercase;color:var(--accent);font-weight:600;line-height:1.6}
-.rail .note{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-soft);
-  line-height:1.7;margin-top:9px}
-.divider-strong{border-top:2px solid var(--rule-strong)}
+main{padding-top:38px;padding-bottom:30px}
+.intro{display:flex;gap:30px;align-items:flex-start;margin-bottom:22px}
+.intro > div{flex:1;min-width:0}
+.portrait{width:190px;flex:none;border:1px solid var(--rule)}
+.role{color:var(--soft);margin-bottom:4px}
+.contact{margin-top:14px;margin-bottom:0}
+.contact a + a::before{content:"\\00b7";color:var(--soft);margin:0 .5em}
+.toc{color:var(--soft)}
 
-.hero{display:grid;grid-template-columns:minmax(0,1fr) 236px;gap:52px;
-  padding:40px 0 34px;align-items:start}
-.hero.single{grid-template-columns:minmax(0,1fr)}
-h1{font-size:clamp(2.15rem,4.4vw,2.95rem);line-height:1.08;letter-spacing:-.022em;font-weight:700}
-.role{font-size:.98rem;font-weight:500;color:var(--ink-soft);margin-top:10px}
-.lede{font-size:1.04rem;line-height:1.74;color:var(--ink-soft);max-width:62ch;margin-top:20px}
-.idlinks{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:22px;font-size:.88rem;font-weight:500}
-.cta{display:inline-block;margin-top:16px;font-family:"IBM Plex Mono",monospace;font-size:12px;
-  font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);
-  border:2px solid var(--rule-strong);padding:10px 17px}
-.cta:hover{background:var(--ink);color:var(--paper);text-decoration:none}
-.portrait{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;
-  border:1px solid var(--rule);background:var(--band)}
-.contact-card{margin-top:18px;border-top:2px solid var(--rule-strong);padding-top:12px}
-.contact-card.flush{margin-top:0}
-.contact-card .label{margin-bottom:6px}
-.contact-card > a{font-family:"Source Serif 4",Georgia,serif;font-size:1.06rem;
-  font-weight:600;line-height:1.35;word-break:break-word}
-.asked{font-size:.9rem;color:var(--ink-soft);line-height:1.65;margin-top:8px}
+.pub{margin-bottom:12px}
+.entry{margin-bottom:16px}
+.entry p{margin-bottom:2px}
+.entry .meta{color:var(--soft);font-size:.95rem}
+.entry .etitle{font-weight:700}
+.wr{display:flex;gap:14px;margin-bottom:8px}
+.wr time{flex:none;width:58px;color:var(--soft);font-size:.95rem}
+.tl{display:flex;gap:14px;margin-bottom:8px}
+.tl time{flex:none;width:112px;color:var(--soft);font-size:.95rem}
+.soft{color:var(--soft)}
 
-.record{display:grid;grid-template-columns:repeat(4,1fr);gap:0}
-.record > div{padding-right:20px;border-right:1px solid var(--rule)}
-.record > div:last-child{border-right:0;padding-right:0}
-.record .fig{font-family:"Source Serif 4",Georgia,serif;font-size:1.3rem;font-weight:700;
-  line-height:1.22;margin-top:7px;font-variant-numeric:tabular-nums}
-.record .fig.long{font-size:1.06rem;line-height:1.3}
-.record .sub{font-size:.83rem;color:var(--ink-soft);margin-top:5px;line-height:1.5}
+.site-foot{border-top:1px solid var(--rule);padding:18px 0 34px;font-size:.92rem;color:var(--soft)}
 
-h2{font-size:1.42rem;line-height:1.22;letter-spacing:-.008em;font-weight:700}
-.sec-note{color:var(--ink-soft);font-size:.95rem;margin-top:8px;max-width:60ch}
-
-.entries{margin-top:22px;display:flex;flex-direction:column}
-.entry{padding:15px 0;border-top:1px solid var(--rule)}
-.entry:first-child{border-top:0;padding-top:0}
-.entry .meta{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.11em;
-  text-transform:uppercase;color:var(--accent);font-weight:500}
-.entry h3{font-size:1.05rem;line-height:1.4;font-weight:600;margin-top:5px}
-.entry h3 a{color:var(--link)}
-.entry .by{font-size:.88rem;color:var(--ink-soft);margin-top:4px}
-.entry p.desc{font-size:.92rem;color:var(--ink-soft);margin-top:6px;max-width:62ch}
-
-.split{display:grid;grid-template-columns:1fr 1fr;gap:0 40px}
-.split > div:last-child{border-left:1px solid var(--rule);padding-left:40px}
-.track-kicker{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.15em;
-  text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:8px}
-.more{display:inline-block;margin-top:16px;font-size:.88rem;font-weight:500}
-.more::after{content:" \\2192"}
-
-.currently{display:flex;flex-direction:column;margin-top:22px}
-.cur{display:grid;grid-template-columns:78px minmax(0,1fr);gap:16px;padding:10px 0;
-  border-top:1px solid var(--rule);align-items:baseline}
-.cur:first-child{border-top:0;padding-top:0}
-.cur time{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-soft);
-  font-variant-numeric:tabular-nums}
-.cur p{font-size:.95rem;line-height:1.58}
-
-.band{background:var(--band);border-top:2px solid var(--rule-strong);
-  border-bottom:2px solid var(--rule-strong)}
-.engage h2{font-size:1.32rem}
-.engage p{color:var(--ink-soft);margin-top:10px;max-width:60ch}
-.engage .mail{margin-top:18px;font-family:"Source Serif 4",Georgia,serif;
-  font-size:1.14rem;font-weight:600}
-
-.toc{display:flex;flex-wrap:wrap;gap:8px 10px;margin-top:24px;padding-top:18px;
-  border-top:1px solid var(--rule)}
-.toc a{font-family:"IBM Plex Mono",monospace;font-size:11.5px;font-weight:600;letter-spacing:.08em;
-  text-transform:uppercase;border:1px solid var(--rule);padding:8px 12px;color:var(--link)}
-.toc a:hover{border-color:var(--link);text-decoration:none}
-.toc a em{font-style:normal;font-weight:500;color:var(--ink-soft);margin-left:6px}
-
-.yearhead{font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:600;
-  letter-spacing:.14em;color:var(--accent);padding:22px 0 8px;
-  border-top:1px solid var(--rule);margin-top:12px;font-variant-numeric:tabular-nums}
-.yearhead:first-child{margin-top:0;border-top:0;padding-top:0}
-.pub{padding:11px 0;border-top:1px solid var(--rule)}
-.yearhead + .pub{border-top:0;padding-top:2px}
-.pub .t{font-family:"Source Serif 4",Georgia,serif;font-size:1.03rem;font-weight:600;line-height:1.42}
-.pub .t a{color:var(--link)}
-.pub .cite{font-size:.88rem;color:var(--ink-soft);margin-top:3px;line-height:1.5}
-
-.wr{display:grid;grid-template-columns:74px minmax(0,1fr);gap:18px;padding:11px 0;
-  border-top:1px solid var(--rule)}
-.yearhead + .wr{border-top:0;padding-top:2px}
-.wr time{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-soft);
-  padding-top:3px;font-variant-numeric:tabular-nums}
-.wr .t{font-family:"Source Serif 4",Georgia,serif;font-size:1.03rem;font-weight:600;line-height:1.42}
-.wr .t a{color:var(--link)}
-.wr .outlet{font-size:.87rem;color:var(--ink-soft);margin-top:3px}
-
-.tlrow{display:grid;grid-template-columns:120px minmax(0,1fr);gap:20px;padding:13px 0;
-  border-top:1px solid var(--rule)}
-.tlrow:first-child{border-top:0;padding-top:0}
-.tlrow time{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-soft);
-  padding-top:2px;font-variant-numeric:tabular-nums}
-.tlt{font-family:"Source Serif 4",Georgia,serif;font-size:1.03rem;font-weight:600}
-.tls{font-size:.9rem;color:var(--ink-soft);margin-top:2px}
-.tlsub{font-size:.9rem;color:var(--ink-soft);margin-top:7px;padding-left:13px;
-  border-left:2px solid var(--rule)}
-.prose{font-size:1.02rem;line-height:1.75;color:var(--ink-soft);max-width:62ch;margin-top:20px}
-.prose p + p{margin-top:13px}
-
-.site-foot{padding:24px 0 42px;font-size:.84rem;color:var(--ink-soft)}
-.site-foot strong{font-family:"Source Serif 4",Georgia,serif;color:var(--ink);font-size:.98rem}
-.foot-links{display:flex;gap:16px;flex-wrap:wrap;margin-top:9px}
-
-@media (max-width:880px){
-  .shell{padding:0 20px}
-  body{font-size:16px}
-  .masthead{align-items:flex-start;padding-top:18px}
-  .mastnav{gap:15px;font-size:.86rem}
-  .row{grid-template-columns:minmax(0,1fr)}
-  .rail{border-right:0;border-bottom:1px solid var(--rule);padding:24px 0 11px}
-  .body-col{padding:16px 0 28px}
-  .hero{grid-template-columns:minmax(0,1fr);gap:28px;padding:30px 0 26px}
-  .hero-aside{max-width:300px}
-  h1{font-size:2.1rem}
-  h2{font-size:1.3rem}
-  .record{grid-template-columns:1fr 1fr;gap:22px 0}
-  .record > div{border-right:0;padding-right:14px}
-  .split{grid-template-columns:minmax(0,1fr);gap:30px}
-  .split > div:last-child{border-left:0;padding-left:0;border-top:1px solid var(--rule);padding-top:28px}
-  .cur,.wr,.tlrow{grid-template-columns:minmax(0,1fr);gap:3px}
-  .wr time,.tlrow time{padding-top:0}
+@media (max-width:640px){
+  body{font-size:17px}
+  .intro.with-photo{flex-direction:column}
+  .portrait{width:150px}
+  nav a{margin-left:0;margin-right:16px}
+  .wr,.tl{flex-direction:column;gap:0}
+  .wr time,.tl time{width:auto}
 }
-@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
 @media print{
-  .topmark,.mastnav,.skip,.toc,.band{display:none}
+  .top nav,.skip{display:none}
   body{font-size:11pt;color:#000;background:#fff}
   a{color:#000;text-decoration:underline}
-  .row{grid-template-columns:minmax(0,1fr)}
-  .rail{border:0;padding:12px 0 0}
 }
 """
 
@@ -774,18 +488,12 @@ REDIRECT = """<!doctype html>
 
 NOT_FOUND = page("404.html", "Page not found — Syed Abul Basher",
                  "The page you asked for does not exist on this site.", """
-  <div class="shell">
-    <div class="hero single">
-      <div>
-        <h1>Page not found</h1>
-        <p class="lede">The address you followed does not exist on this site. It may have been
-          renamed, or the link that brought you here may be out of date.</p>
-        <p class="idlinks"><a href="index.html">Home</a><a href="research.html">Research</a>
-          <a href="writing.html">Writing</a><a href="advisory.html">Advisory</a>
-          <a href="about.html">About</a></p>
-      </div>
-    </div>
-  </div>""", active=None)
+  <h1>Page not found</h1>
+  <p>The address you followed does not exist on this site. It may have been renamed, or the link
+    that brought you here may be out of date.</p>
+  <p><a href="index.html">Home</a> &middot; <a href="research.html">Research</a> &middot;
+    <a href="writing.html">Writing</a> &middot; <a href="advisory.html">Advisory</a> &middot;
+    <a href="about.html">About</a></p>""", active=None)
 
 today = datetime.date.today().isoformat()
 SITEMAP = ('<?xml version="1.0" encoding="UTF-8"?>\n'
