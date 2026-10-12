@@ -60,7 +60,11 @@ main{padding-top:38px;padding-bottom:34px}
 .contact strong{color:var(--green);font-size:.82rem;letter-spacing:.1em;text-transform:uppercase}
 .contact a + a::before{content:"\00b7";color:var(--soft);margin:0 .5em;display:inline-block;
   text-decoration:none}
-.toc{color:var(--soft)}
+.toc{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 8px}
+.toc a{display:inline-flex;align-items:baseline;gap:8px;padding:5px 14px;border:1px solid var(--rule);
+  border-radius:999px;background:var(--tint);color:var(--green);text-decoration:none;font-size:1rem;margin:0}
+.toc a span{color:var(--soft);font-size:.85rem}
+.toc a:hover{border-color:var(--green)}
 
 .mangrove{background:var(--tint);border-left:5px solid var(--green);
   padding:18px 24px 8px;margin:30px 0 8px}

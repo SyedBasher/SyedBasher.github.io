@@ -41,8 +41,12 @@ for s, y, t, d, u in pubs:
 sec_counts = {s: len(v) for s, v in by_sec.items()}
 n_pub = sum(1 for y, *_ in by_sec["Published articles"] if y != "Forthcoming")
 
-research_toc = ' &middot; '.join(
-    f'<a href="#{slug(s)}">{E(s)}</a>' for s in ORDER if sec_counts[s])
+SHORT = {"Published articles": "Articles", "Working papers": "Working papers",
+         "Book chapters and book reviews": "Chapters and reviews",
+         "Unpublished papers": "Unpublished", "Dissertation": "Dissertation"}
+research_toc = ''.join(
+    f'<a href="#{slug(s)}">{E(SHORT[s])}<span>{sec_counts[s]}</span></a>'
+    for s in ORDER if sec_counts[s])
 
 
 def pub_item(t, d, u):
@@ -352,7 +356,7 @@ HOME_BODY = f"""
 
 RESEARCH_BODY = f"""
   <h1>Research</h1>
-  <p class="toc">{research_toc}</p>
+  <div class="toc">{research_toc}</div>
 {research_body}"""
 
 WRITING_BODY = f"""
@@ -484,7 +488,11 @@ main{padding-top:38px;padding-bottom:34px}
 .contact strong{color:var(--green);font-size:.82rem;letter-spacing:.1em;text-transform:uppercase}
 .contact a + a::before{content:"\\00b7";color:var(--soft);margin:0 .5em;display:inline-block;
   text-decoration:none}
-.toc{color:var(--soft)}
+.toc{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 8px}
+.toc a{display:inline-flex;align-items:baseline;gap:8px;padding:5px 14px;border:1px solid var(--rule);
+  border-radius:999px;background:var(--tint);color:var(--green);text-decoration:none;font-size:1rem;margin:0}
+.toc a span{color:var(--soft);font-size:.85rem}
+.toc a:hover{border-color:var(--green)}
 
 .mangrove{background:var(--tint);border-left:5px solid var(--green);
   padding:18px 24px 8px;margin:30px 0 8px}
