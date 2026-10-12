@@ -143,9 +143,9 @@ PROJECTS = [
   "Analysis of food security and agricultural support in a small, import-dependent economy, "
   "including work on subsidy design and household food expenditure."),
 ]
+# entries show date, client and title only; the descriptions are kept here for reference but not displayed
 projects_body = ''.join(
-    f'<div class="entry"><p class="meta">{E(m)}</p><p class="etitle">{E(t)}</p>'
-    f'<p>{E(d)}</p></div>' for m, t, d in PROJECTS)
+    f'<div class="entry"><p class="meta">{E(m)}</p><p class="etitle">{E(t)}</p></div>' for m, t, d in PROJECTS)
 
 
 # ------------------------------------------------------------------ about ---
