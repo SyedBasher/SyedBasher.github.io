@@ -49,8 +49,28 @@ research_toc = ''.join(
     for s in ORDER if sec_counts[s])
 
 
+def italic_journal(d):
+    """Escape a publication detail line and italicise the journal (or book) name in it."""
+    m = re.match(r'in (.+?)(, edited by.*)$', d)
+    if m:
+        return f'in <em>{E(m.group(1))}</em>{E(m.group(2))}'
+    m = re.match(r'(.*?)(, (?:Vols?\.|pp\.|Article|forthcoming).*)$', d)
+    if not m:
+        return E(d)
+    head, tail = m.groups()
+    if head.startswith('Book review of '):
+        i = head.rfind(', ')
+        pre, name = head[:i + 2], head[i + 2:]
+    elif '. ' in head:
+        i = head.rfind('. ')
+        pre, name = head[:i + 2], head[i + 2:]
+    else:
+        pre, name = '', head
+    return f'{E(pre)}<em>{E(name)}</em>{E(tail)}'
+
+
 def pub_item(t, d, u):
-    det = f'<br>{E(d)}' if d else ''
+    det = f'<br>{italic_journal(d)}' if d else ''
     return f'<p class="pub">{link(t, u)}{det}</p>'
 
 
