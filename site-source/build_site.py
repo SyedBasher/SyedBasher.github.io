@@ -243,7 +243,9 @@ JSONLD = json.dumps({
                    "Household demand and welfare", "Bangladesh economy"],
     "sameAs": ["https://scholar.google.com/citations?user=aabMrnUAAAAJ",
                "https://orcid.org/0000-0003-3918-8285",
-               "https://papers.ssrn.com/sol3/cf_dev/AbsByAuth.cfm?per_id=369204"],
+               "https://papers.ssrn.com/sol3/cf_dev/AbsByAuth.cfm?per_id=369204",
+               "https://github.com/SyedBasher",
+               "https://sites.google.com/view/syedbasher"],
 }, indent=2, ensure_ascii=False)
 
 FOOTER = """
@@ -587,6 +589,33 @@ SITEMAP = ('<?xml version="1.0" encoding="UTF-8"?>\n'
 
 ROBOTS = f"User-agent: *\nAllow: /\n\nSitemap: {SITE}/sitemap.xml\n"
 
+LLMS_TXT = f"""# Syed Abul Basher
+
+> Economist and independent researcher based in Dhaka, Bangladesh, with about twenty-five years of research experience in energy economics, monetary policy and applied macroeconomics. Ph.D. in Economics, York University (2007). Founder of Mangrove Intelligence (2026). This is his personal website.
+
+Current research focuses on the Bangladesh economy: regional disparity, household welfare and prices, the energy sector, and economy-wide models (computable general equilibrium and macroeconometric). Earlier positions include Research Economist at Qatar Central Bank (2007-2013), Senior Research Fellow at Fikra Research & Policy, Doha (2014-2016), and Professor of Economics at East West University, Dhaka (2019-2025). Contact: syed.basher@gmail.com.
+
+## Pages
+
+- [Home]({SITE}/): Summary of current research and recent papers
+- [Research]({SITE}/research.html): Full list of publications and working papers
+- [Writing]({SITE}/writing.html): Newspaper columns and op-eds in English and Bangla
+- [Advisory]({SITE}/advisory.html): Commissioned projects for research institutes, development agencies and public bodies
+- [About]({SITE}/about.html): Education, positions and biography
+- [Curriculum Vitae (PDF)]({SITE}/Syed_Basher_CV.pdf)
+
+## Profiles
+
+- [Google Scholar](https://scholar.google.com/citations?user=aabMrnUAAAAJ)
+- [ORCID](https://orcid.org/0000-0003-3918-8285)
+- [SSRN](https://papers.ssrn.com/sol3/cf_dev/AbsByAuth.cfm?per_id=369204)
+- [GitHub](https://github.com/SyedBasher)
+
+## Related
+
+- [Mangrove Intelligence](https://www.mangroveintel.com/): Company founded by Syed Abul Basher in 2026 that builds data and analytical products on the Bangladesh economy
+"""
+
 
 # ------------------------------------------------------------------ write ---
 def write(rel, text):
@@ -605,6 +634,7 @@ write('404.html', NOT_FOUND)
 write('assets/styles.css', CSS)
 write('sitemap.xml', SITEMAP)
 write('robots.txt', ROBOTS)
+write('llms.txt', LLMS_TXT)
 write('.nojekyll', '')
 print(f'\nDone. {n_pub} published articles, {len(pubs)} publications in all, '
       f'{n_writing} columns.')
