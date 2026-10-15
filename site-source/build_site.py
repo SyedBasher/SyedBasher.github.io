@@ -283,6 +283,7 @@ def page(filename, title, description, body, active):
 <meta name="description" content="{E(description)}">
 <meta name="author" content="Syed Abul Basher">
 <meta name="google-site-verification" content="DZD2lk-D0y5By_sR0RzvNgRMkbWvqAitESuedDdbq0k">
+<meta name="google-site-verification" content="wpQKko_1ti5Er1q-oVok-Hucz0A5W2ghNGiuqgShnCU">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="{canonical}">
 
