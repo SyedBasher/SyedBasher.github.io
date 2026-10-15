@@ -1,0 +1,31 @@
+name: Notify search engines
+
+# Pings IndexNow (Bing, Yandex, Seznam, Naver) with the URLs in sitemap.xml
+# every time the site is pushed. Google does not support IndexNow; it picks up
+# sitemap.xml through Search Console and robots.txt.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  indexnow:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Submit sitemap URLs to IndexNow
+        run: |
+          set -euo pipefail
+          HOST="syedbasher.github.io"
+          KEY_FILE=$(ls -1 *.txt | grep -E '^[0-9a-f]{32}\.txt$' | head -n1)
+          KEY="${KEY_FILE%.txt}"
+          URLS=$(grep -oE '<loc>[^<]+</loc>' sitemap.xml | sed -E 's#</?loc>##g' | jq -R . | jq -s .)
+          jq -n --arg host "$HOST" --arg key "$KEY" \
+                --arg keyLocation "https://$HOST/$KEY_FILE" --argjson urls "$URLS" \
+                '{host:$host,key:$key,keyLocation:$keyLocation,urlList:$urls}' > payload.json
+          # Give GitHub Pages a minute to publish the new build first.
+          sleep 60
+          curl -sS -o /dev/null -w "IndexNow HTTP %{http_code}\n" \
+            -H "Content-Type: application/json; charset=utf-8" \
+            --data @payload.json https://api.indexnow.org/indexnow

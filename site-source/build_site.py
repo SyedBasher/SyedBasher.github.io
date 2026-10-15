@@ -569,7 +569,9 @@ NOT_FOUND = page("404.html", "Page not found — Syed Abul Basher",
     that brought you here may be out of date.</p>
   <p><a href="index.html">Home</a> &middot; <a href="research.html">Research</a> &middot;
     <a href="writing.html">Writing</a> &middot; <a href="advisory.html">Advisory</a> &middot;
-    <a href="about.html">About</a></p>""", active=None)
+    <a href="about.html">About</a></p>""", active=None).replace(
+    '<meta name="robots" content="index, follow">',
+    '<meta name="robots" content="noindex, follow">')
 
 today = datetime.date.today().isoformat()
 SITEMAP = ('<?xml version="1.0" encoding="UTF-8"?>\n'
