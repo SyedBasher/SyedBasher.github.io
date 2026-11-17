@@ -354,6 +354,18 @@ HOME_BODY = f"""
       on the Bangladesh economy: databases, indicators and regular forecasts that are kept up to date
       rather than delivered once and filed away. It also takes on economy-wide modelling and analysis
       for organisations that need it.</p>
+    <p>Its public tools are free to use:</p>
+    <ul class="tools">
+      <li><a href="https://forecast.mangroveintel.com/" target="_blank" rel="noopener">Mangrove
+        Forecast Lab</a>, monthly forecasts of inflation, GDP growth, remittances and electricity
+        demand, with ranges and a public record of how past forecasts turned out.</li>
+      <li><a href="https://stressindex.mangroveintel.com/" target="_blank" rel="noopener">Bangladesh
+        Economic Stress Index</a>, a daily reading of macroeconomic stress built from news on sixteen
+        parts of the economy.</li>
+      <li><a href="https://jachai.mangroveintel.com/" target="_blank" rel="noopener">Jachai</a>, a
+        Bangla service for checking a message, phone number, link or recruiting agency for fraud
+        before sending money.</li>
+    </ul>
     <p><a href="https://www.mangroveintel.com/" target="_blank" rel="noopener">Visit
       Mangrove Intelligence</a></p>
   </section>
@@ -521,6 +533,7 @@ main{padding-top:38px;padding-bottom:34px}
 .mangrove{background:var(--tint);border-left:5px solid var(--green);
   padding:18px 24px 8px;margin:30px 0 8px}
 .mangrove h2{margin:0 0 8px;padding:0;border:0;font-size:1.25rem}
+.mangrove ul.tools{margin:0 0 12px;padding-left:20px}.mangrove ul.tools li{margin:0 0 6px}
 
 .pub{margin-bottom:12px}
 .entry{margin-bottom:16px}

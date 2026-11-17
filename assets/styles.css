@@ -69,6 +69,7 @@ main{padding-top:38px;padding-bottom:34px}
 .mangrove{background:var(--tint);border-left:5px solid var(--green);
   padding:18px 24px 8px;margin:30px 0 8px}
 .mangrove h2{margin:0 0 8px;padding:0;border:0;font-size:1.25rem}
+.mangrove ul.tools{margin:0 0 12px;padding-left:20px}.mangrove ul.tools li{margin:0 0 6px}
 
 .pub{margin-bottom:12px}
 .entry{margin-bottom:16px}
